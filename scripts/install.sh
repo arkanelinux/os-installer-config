@@ -93,6 +93,19 @@ done
 task_wrapper readarray base_packages < "$osidir/bits/package_lists/base.list"
 task_wrapper sudo pacstrap $workdir ${base_packages[*]}
 
+# Copy the ISO's pacman.conf file to the new installation
+task_wrapper sudo cp -v /etc/pacman.conf $workdir/etc/pacman.conf
+
+# For some reason Arch does not populate the keyring upon installing
+# arkane-keyring, thus we have to populate it manually
+task_wrapper sudo arch-chroot $workdir pacman-key --populate arkane
+
+# Install the remaining system packages
+task_wrapper sudo arch-chroot $workdir pacman -S --noconfirm - < $osidir/bits/package_lists/gnome.list
+
+# Install the systemd-boot bootloader
+task_wrapper sudo arch-chroot $workdir bootctl install
+
 # Collect information about the system memory, this is used to determine an apropriate swapfile size
 declare -ri memtotal=$(grep MemTotal /proc/meminfo | awk '{print $2}')
 
@@ -119,18 +132,5 @@ task_wrapper sudo swapon $workdir/var/swapfile
 
 # Generate the fstab file
 task_wrapper sudo genfstab -U $workdir | task_wrapper sudo tee $workdir/etc/fstab
-
-# Copy the ISO's pacman.conf file to the new installation
-task_wrapper sudo cp -v /etc/pacman.conf $workdir/etc/pacman.conf
-
-# For some reason Arch does not populate the keyring upon installing
-# arkane-keyring, thus we have to populate it manually
-task_wrapper sudo arch-chroot $workdir pacman-key --populate arkane
-
-# Install the remaining system packages
-task_wrapper sudo arch-chroot $workdir pacman -S --noconfirm - < $osidir/bits/package_lists/gnome.list
-
-# Install the systemd-boot bootloader
-task_wrapper sudo arch-chroot $workdir bootctl install
 
 exit 0
