@@ -1,0 +1,35 @@
+%YAML 1.2
+---
+
+distribution_name: 'Arkane Linux'
+
+internet_connection_required: yes
+
+internet_checker_url: 'http://nmcheck.gnome.org/check_network_status.txt'
+
+fixed_language: no
+
+suggested_languages:
+    - 'de'
+    - 'en'
+    - 'es'
+    - 'fr'
+    - 'nl'
+    - 'uk'
+
+welcome_page:
+    logo    : '/usr/share/pixmaps/arkanelinux-logo.png'
+    text    : 'Welcome to Arkane Linux!'
+    usage   : yes
+
+minimum_disk_size: 10
+offer_disk_encryption: yes
+
+skip_user: no
+skip_locale: no
+
+failure_help_url: 'https://duckduckgo.com/?q="os-installer {}"+"failed installation"'
+
+browser_cmd: 'firefox'
+disks_cmd  : 'gnome-disks'
+wifi_cmd   : 'gnome-control-center wifi'
