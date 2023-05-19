@@ -91,7 +91,7 @@ done
 
 # Install the base system packages to root
 task_wrapper readarray base_packages < "$osidir/bits/package_lists/base.list"
-task_wrapper sudo pacstrap $workdir $base_packages
+task_wrapper sudo pacstrap $workdir ${base_packages[*]}
 
 # Collect information about the system memory, this is used to determine an apropriate swapfile size
 declare -ri memtotal=$(grep MemTotal /proc/meminfo | awk '{print $2}')
