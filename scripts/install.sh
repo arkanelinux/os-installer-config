@@ -89,6 +89,10 @@ for mountpoint in $workdir $workdir/boot; do
 	task_wrapper mountpoint -q $mountpoint
 done
 
+# Install the base system packages to root
+task_wrapper readarray base_packages < "$osidir/bits/package_lists/base.list"
+task_wrapper sudo pacstrap $workdir $base_packages
+
 # Collect information about the system memory, this is used to determine an apropriate swapfile size
 declare -ri memtotal=$(grep MemTotal /proc/meminfo | awk '{print $2}')
 
@@ -112,10 +116,6 @@ fi
 
 # Enable the swapfile
 task_wrapper sudo swapon $workdir/var/swapfile
-
-# Install the base system packages to root
-task_wrapper readarray base_packages < "$osidir/bits/package_lists/base.list"
-task_wrapper sudo pacstrap $workdir $base_packages
 
 # Generate the fstab file
 task_wrapper sudo genfstab -U $workdir | task_wrapper sudo tee $workdir/etc/fstab
