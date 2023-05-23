@@ -38,25 +38,27 @@ done
 # Set default stop timer to 15 seconds to avoid long shutdowns
 task_wrapper sudo sed -i 's/#DefaultTimeoutStopSec=90s/DefaultTimeoutStopSec=15s/g' $workdir/etc/systemd/system.conf
 
-# TODO: uncomment locale in locale.conf
+# Set chosen locale and en_US.UTF-8 for it is required by some programs
+echo "$OSI_LOCALE UTF-8" | task_wrapper sudo tee $workdir/etc/locale.gen
+
+if [[ $OSI_LOCALE != 'en_US.UTF-8' ]]; then
+	echo "en_US.UTF-8 UTF-8" | task_wrapper sudo tee $workdir/etc/locale.gen
+fi
+
+echo "LANG=\"$OSI_LOCALE\"" | task_wrapper sudo tee $workdir/etc/locale.conf
 
 # Enable user selected locale
 task_wrapper sudo arch-chroot $workdir locale-gen
 
 # Copy Systemd-boot configuration
-task_wrapper sudo cp $osidir/bits/systemd-boot/arkane.conf /mnt/boot/loader/entries/
-task_wrapper sudo cp $osidir/bits/systemd-boot/arkane-fallback.conf /mnt/boot/loader/entries/
-task_wrapper sudo cp $osidir/bits/systemd-boot/loader.conf /mnt/boot/loader/
+task_wrapper sudo cp -rv $osidir/bits/systemd-boot/* $workdir/boot/loader/
 
 # Add dconf tweaks for GNOME desktop configuration
-task_wrapper sudo cp -r /etc/os-installer/bits/dconf /mnt/etc/
+task_wrapper sudo cp -rv /etc/os-installer/bits/dconf $workdir/etc/
 task_wrapper sudo arch-chroot /mnt dconf update
 
-# Configure useradd default on new root
-#
-# The custom useradd default is used for setting Zsh as the default
-# shell for newly created users
-task_wrapper sudo install -m600 -d  $osidir/bits/useradd $workdir/etc/default/
+# Add custom useradd config
+task_wrapper sudo install -m600 -d $osidir/bits/useradd $workdir/etc/default/
 
 # Enable wheel in sudoers
 task_wrapper sudo sed -i 's/#\ %wheel\ ALL=(ALL:ALL)\ ALL/%wheel\ ALL=(ALL:ALL)\ ALL/g' /mnt/etc/sudoers
@@ -71,7 +73,7 @@ declare -r KERNEL_PARAM='lsm=landlock,lockdown,yama,integrity,apparmor,bpf quiet
 
 # The kernel parameters have to be configured differently based upon if the
 # user opted for disk encryption or not
-if [[ ${OSI_USE_ENCRYPTION} == 1 ]];
+if [[ $OSI_USE_ENCRYPTION == 1 ]];
 then
 	declare -r LUKS_UUID=$(sudo blkid -o value -s UUID ${OSI_DEVICE_PATH}3)
 	echo "options rd.luks.name=$LUKS_UUID=arkane_root root=/dev/mapper/arkane_root $KERNEL_PARAM" | task_wrapper sudo tee -a /mnt/boot/loader/entries/arkane.conf
