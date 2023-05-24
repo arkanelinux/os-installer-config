@@ -39,10 +39,10 @@ done
 task_wrapper sudo sed -i 's/#DefaultTimeoutStopSec=90s/DefaultTimeoutStopSec=15s/g' $workdir/etc/systemd/system.conf
 
 # Set chosen locale and en_US.UTF-8 for it is required by some programs
-echo "$OSI_LOCALE UTF-8" | task_wrapper sudo tee $workdir/etc/locale.gen
+echo "$OSI_LOCALE UTF-8" | task_wrapper sudo tee -a $workdir/etc/locale.gen
 
 if [[ $OSI_LOCALE != 'en_US.UTF-8' ]]; then
-	echo "en_US.UTF-8 UTF-8" | task_wrapper sudo tee $workdir/etc/locale.gen
+	echo "en_US.UTF-8 UTF-8" | task_wrapper sudo tee -a $workdir/etc/locale.gen
 fi
 
 echo "LANG=\"$OSI_LOCALE\"" | task_wrapper sudo tee $workdir/etc/locale.conf
