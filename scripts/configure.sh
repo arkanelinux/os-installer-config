@@ -58,7 +58,7 @@ task_wrapper sudo cp -rv /etc/os-installer/bits/dconf $workdir/etc/
 task_wrapper sudo arch-chroot /mnt dconf update
 
 # Add custom useradd config
-task_wrapper sudo install -m600 -d $osidir/bits/useradd $workdir/etc/default/
+task_wrapper sudo install -m600 $osidir/bits/useradd $workdir/etc/default/useradd
 
 # Enable wheel in sudoers
 task_wrapper sudo sed -i 's/#\ %wheel\ ALL=(ALL:ALL)\ ALL/%wheel\ ALL=(ALL:ALL)\ ALL/g' /mnt/etc/sudoers
