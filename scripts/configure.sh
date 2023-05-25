@@ -38,6 +38,7 @@ done
 # Set default stop timer to 15 seconds to avoid long shutdowns
 task_wrapper sudo sed -i 's/#DefaultTimeoutStopSec=90s/DefaultTimeoutStopSec=15s/g' $workdir/etc/systemd/system.conf
 
+# FIXME: Uncomment instead of append
 # Set chosen locale and en_US.UTF-8 for it is required by some programs
 echo "$OSI_LOCALE UTF-8" | task_wrapper sudo tee -a $workdir/etc/locale.gen
 
@@ -47,21 +48,21 @@ fi
 
 echo "LANG=\"$OSI_LOCALE\"" | task_wrapper sudo tee $workdir/etc/locale.conf
 
-# Enable user selected locale
+# Generate locales
 task_wrapper sudo arch-chroot $workdir locale-gen
 
 # Copy Systemd-boot configuration
 task_wrapper sudo cp -rv $osidir/bits/systemd-boot/* $workdir/boot/loader/
 
 # Add dconf tweaks for GNOME desktop configuration
-task_wrapper sudo cp -rv /etc/os-installer/bits/dconf $workdir/etc/
-task_wrapper sudo arch-chroot /mnt dconf update
+task_wrapper sudo cp -rv $osidir/bits/dconf $workdir/etc/
+task_wrapper sudo arch-chroot $workdir dconf update
 
 # Add custom useradd config
 task_wrapper sudo install -m600 $osidir/bits/useradd $workdir/etc/default/useradd
 
 # Enable wheel in sudoers
-task_wrapper sudo sed -i 's/#\ %wheel\ ALL=(ALL:ALL)\ ALL/%wheel\ ALL=(ALL:ALL)\ ALL/g' /mnt/etc/sudoers
+task_wrapper sudo sed -i 's/#\ %wheel\ ALL=(ALL:ALL)\ ALL/%wheel\ ALL=(ALL:ALL)\ ALL/g' $workdir/etc/sudoers
 
 # Set hostname
 echo 'arkane' | task_wrapper sudo tee /mnt/etc/hostname
@@ -76,21 +77,22 @@ declare -r KERNEL_PARAM='lsm=landlock,lockdown,yama,integrity,apparmor,bpf quiet
 if [[ $OSI_USE_ENCRYPTION == 1 ]];
 then
 	declare -r LUKS_UUID=$(sudo blkid -o value -s UUID ${OSI_DEVICE_PATH}3)
-	echo "options rd.luks.name=$LUKS_UUID=arkane_root root=/dev/mapper/arkane_root $KERNEL_PARAM" | task_wrapper sudo tee -a /mnt/boot/loader/entries/arkane.conf
-	echo "options rd.luks.name=$LUKS_UUID=arkane_root root=/dev/mapper/arkane_root $KERNEL_PARAM" | task_wrapper sudo tee -a /mnt/boot/loader/entries/arkane-fallback.conf
-	task_wrapper sudo sed -i '/^#/!s/HOOKS=(.*)/HOOKS=(systemd sd-plymouth autodetect keyboard keymap consolefont modconf block sd-encrypt filesystems fsck)/g' /mnt/etc/mkinitcpio.conf
-	task_wrapper sudo arch-chroot /mnt mkinitcpio -P
+	echo "options rd.luks.name=$LUKS_UUID=arkane_root root=/dev/mapper/arkane_root $KERNEL_PARAM" | task_wrapper sudo tee -a $workdir/boot/loader/entries/arkane.conf
+	echo "options rd.luks.name=$LUKS_UUID=arkane_root root=/dev/mapper/arkane_root $KERNEL_PARAM" | task_wrapper sudo tee -a $workdir/boot/loader/entries/arkane-fallback.conf
+	task_wrapper sudo sed -i '/^#/!s/HOOKS=(.*)/HOOKS=(systemd sd-plymouth autodetect keyboard keymap consolefont modconf block sd-encrypt filesystems fsck)/g' $workdir/etc/mkinitcpio.conf
+	task_wrapper sudo arch-chroot $workdir mkinitcpio -P
 else
-	echo "options root=\"LABEL=arkane_root\" $KERNEL_PARAM" | task_wrapper sudo tee -a /mnt/boot/loader/entries/arkane.conf
-	echo "options root=\"LABEL=arkane_root\" $KERNEL_PARAM" | task_wrapper sudo tee -a /mnt/boot/loader/entries/arkane-fallback.conf
-	task_wrapper sudo sed -i '/^#/!s/HOOKS=(.*)/HOOKS=(systemd sd-plymouth autodetect keyboard keymap consolefont modconf block filesystems fsck)/g' /mnt/etc/mkinitcpio.conf
-	task_wrapper sudo arch-chroot /mnt mkinitcpio -P
+	echo "options root=\"LABEL=arkane_root\" $KERNEL_PARAM" | task_wrapper sudo tee -a $workdir/boot/loader/entries/arkane.conf
+	echo "options root=\"LABEL=arkane_root\" $KERNEL_PARAM" | task_wrapper sudo tee -a $workdir/boot/loader/entries/arkane-fallback.conf
+	task_wrapper sudo sed -i '/^#/!s/HOOKS=(.*)/HOOKS=(systemd sd-plymouth autodetect keyboard keymap consolefont modconf block filesystems fsck)/g' $workdir/etc/mkinitcpio.conf
+	task_wrapper sudo arch-chroot $workdir mkinitcpio -P
 fi
 
+# Add user and set password
+task_wrapper sudo arch-chroot $workdir useradd -m $OSI_USER_NAME
+echo $OSI_USER_NAME:$OSI_USER_PASSWORD | task_wrapper sudo arch-chroot $workdir chpasswd
+
 # Ensure synced and umount
-#
-# Linux sometimes likes to be smart about these things are write everything
-# to the memory instead of the disk
 task_wrapper sync
 task_wrapper sudo umount -R /mnt
 
