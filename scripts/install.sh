@@ -102,7 +102,7 @@ task_wrapper sudo arch-chroot $workdir pacman-key --populate arkane
 
 # If localrepo exists, mount it
 if [[ -d /var/localrepo ]]; then
-	task_wrapper sudo mount -v -m /var/localrepo $workdir/var/localrepo
+	task_wrapper sudo mount -v -m --bind /var/localrepo $workdir/var/localrepo
 fi
 
 # Install the remaining system packages
