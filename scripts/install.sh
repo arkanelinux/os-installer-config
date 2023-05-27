@@ -100,8 +100,19 @@ task_wrapper sudo cp -v /etc/pacman.conf $workdir/etc/pacman.conf
 # arkane-keyring, thus we have to populate it manually
 task_wrapper sudo arch-chroot $workdir pacman-key --populate arkane
 
+# If localrepo exists, mount it
+if [[ -d /var/localrepo ]]; then
+	task_wrapper sudo mount -v -m /var/localrepo $workdir/var/localrepo
+fi
+
 # Install the remaining system packages
 task_wrapper sudo arch-chroot $workdir pacman -S --noconfirm - < $osidir/bits/package_lists/gnome.list
+
+# If localrepo exists, unmount it and remove dir
+if [[ -d $workdir/var/localrepo ]]; then
+	task_wrapper sudo umount -v $workdir/var/localrepo
+	rm -rf $workdir/var/localrepo
+fi
 
 # Install the systemd-boot bootloader
 task_wrapper sudo arch-chroot $workdir bootctl install
