@@ -61,8 +61,8 @@ task_wrapper sudo arch-chroot $workdir dconf update
 # Add custom useradd config
 task_wrapper sudo install -m600 $osidir/bits/useradd $workdir/etc/default/useradd
 
-# Enable wheel in sudoers
-task_wrapper sudo sed -i 's/#\ %wheel\ ALL=(ALL:ALL)\ ALL/%wheel\ ALL=(ALL:ALL)\ ALL/g' $workdir/etc/sudoers
+# Enable wheel in sudoers.d
+echo '%wheel ALL=(ALL:ALL) ALL' | task_wrapper sudo tee $workdir/etc/sudoers.d/wheel
 
 # Set hostname
 echo 'arkane' | task_wrapper sudo tee /mnt/etc/hostname
