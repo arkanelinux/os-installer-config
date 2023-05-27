@@ -47,6 +47,7 @@ gst-plugins-base
 gst-plugins-good
 libva-mesa-driver
 loupe
+man-db
 mesa
 mesa-tweaks-arkane
 mesa-vdpau
@@ -59,8 +60,6 @@ noto-fonts
 noto-fonts-cjk
 noto-fonts-emoji
 openssh
-os-installer
-os-installer-config
 pacman-contrib
 pipewire
 pipewire-alsa
