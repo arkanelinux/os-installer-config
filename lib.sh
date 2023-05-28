@@ -19,32 +19,6 @@ if [[ ! -n $sudo_ok ]]; then
 	exit 1
 fi
 
-# Cancel installation of a variable is set, useful for checking if a series of
-# commands managed to run successfully of not
-quit_if_set () {
-
-	# $1 = Error message
-	# $2 = Success message
-	# $3 = Variable to check if exists
-
-	if [[ ! $3 -eq 0 ]]; then
-		printf "$1\n"
-
-		if [[ -n $OSI_DEBUG ]]; then
-			printf "$1\n" >> $HOME/os-installer.log
-		fi
-
-		exit 1
-	else
-		printf "$2\n"
-
-		if [[ -n $OSI_DEBUG ]]; then
-			printf "$2\n" >> $HOME/os-installer.log
-		fi
-	fi
-
-}
-
 # Executes program or build-in and quits osi on non-zero exit code
 task_wrapper () {
 	if [[ -n $OSI_CONFIG_DEBUG ]]; then
