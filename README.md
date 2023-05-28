@@ -20,9 +20,9 @@ An overview of the non-default os-installer components.
 - Create `/home` Btrfs subvolume
 - Install core system defined in `bits/package_lists/base.list`
 - Setup pacman keyring
+- Bind mount `/var/localrepo` to new install if available
 - Install GNOME system defined in `bits/package_lists/gnome.list`
 - Install bootloader
-- Bind mount `/var/localrepo` to new install if available
 - Create 2GB, 4GB or 6GB swapfile based on amount of system memory
 - Enable swapfile
 - Generate fstab
