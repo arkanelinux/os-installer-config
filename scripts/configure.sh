@@ -99,6 +99,19 @@ task_wrapper sudo arch-chroot $workdir usermod -a -G wheel $OSI_USER_NAME
 # Set root password
 echo root:$OSI_USER_PASSWORD | task_wrapper sudo arch-chroot $workdir chpasswd
 
+# Set timezome
+task_wrapper sudo arch-chroot $workdir ln -sf /usr/share/zoneinfo/$OSI_TIMEZONE /etc/localtime
+
+# Set custom keymap, very hacky but it gets the job done
+# TODO: Also set in TTY
+declare -r current_keymap=$(gsettings get org.gnome.desktop.input-sources sources)
+task_wrapper sudo arch-chroot $workdir gsettings set org.gnome.desktop.input-sources sources ${current_keymap}
+
+# Set auto login if requested
+if [[ $OSI_USER_AUTOLOGIN -eq 1 ]]; then
+	printf "[daemon]\nAutomaticLoginEnable=True\nAutomaticLogin=${OSI_USER_NAME}\n" | sudo tee $workdir/etc/gdm/custom.conf
+fi
+
 # Ensure synced and umount
 sync
 sudo umount -R /mnt
