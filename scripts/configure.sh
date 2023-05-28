@@ -91,9 +91,13 @@ else
 	task_wrapper sudo arch-chroot $workdir mkinitcpio -P
 fi
 
-# Add user and set password
+# Add user, setup groups and set password
 task_wrapper sudo arch-chroot $workdir useradd -m $OSI_USER_NAME
 echo $OSI_USER_NAME:$OSI_USER_PASSWORD | task_wrapper sudo arch-chroot $workdir chpasswd
+task_wrapper sudo arch-chroot $workdir usermod -a -G wheel $OSI_USER_NAME
+
+# Set root password
+echo root:$OSI_USER_PASSWORD | task_wrapper sudo arch-chroot $workdir chpasswd
 
 # Ensure synced and umount
 sync
