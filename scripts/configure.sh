@@ -96,7 +96,7 @@ task_wrapper sudo arch-chroot $workdir useradd -m $OSI_USER_NAME
 echo $OSI_USER_NAME:$OSI_USER_PASSWORD | task_wrapper sudo arch-chroot $workdir chpasswd
 
 # Ensure synced and umount
-task_wrapper sync
-task_wrapper sudo umount -R /mnt
+sync
+sudo umount -R /mnt
 
 exit 0
