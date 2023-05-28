@@ -112,6 +112,10 @@ if [[ $OSI_USER_AUTOLOGIN -eq 1 ]]; then
 	printf "[daemon]\nAutomaticLoginEnable=True\nAutomaticLogin=${OSI_USER_NAME}\n" | task_wrapper sudo tee $workdir/etc/gdm/custom.conf
 fi
 
+# Disable localrepo on new install
+task_wrapper grep -v 'localrepo' $workdir/etc/pacman.conf | task_wrapper sudo tee $workdir/etc/pacman.conf.new
+task_wrapper sudo mv $workdir/etc/pacman.conf.new $workdir/etc/pacman.conf
+
 # Ensure synced and umount
 sync
 sudo umount -R /mnt
