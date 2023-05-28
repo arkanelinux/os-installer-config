@@ -78,12 +78,16 @@ if [[ $OSI_USE_ENCRYPTION == 1 ]]; then
 	declare -r LUKS_UUID=$(sudo blkid -o value -s UUID ${OSI_DEVICE_PATH}3)
 	echo "options rd.luks.name=$LUKS_UUID=arkane_root root=/dev/mapper/arkane_root $KERNEL_PARAM" | task_wrapper sudo tee -a $workdir/boot/loader/entries/arkane.conf
 	echo "options rd.luks.name=$LUKS_UUID=arkane_root root=/dev/mapper/arkane_root $KERNEL_PARAM" | task_wrapper sudo tee -a $workdir/boot/loader/entries/arkane-fallback.conf
-	task_wrapper sudo sed -i '/^#/!s/HOOKS=(.*)/HOOKS=(systemd sd-plymouth autodetect keyboard keymap consolefont modconf block sd-encrypt filesystems fsck)/g' $workdir/etc/mkinitcpio.conf
+
+	# sed isn't wrapped to avoid bash from parsing the '' symbols when calling task_wrapper causing sed to not function
+	sudo sed -i '/^#/!s/HOOKS=(.*)/HOOKS=(systemd sd-plymouth autodetect keyboard keymap consolefont modconf block sd-encrypt filesystems fsck)/g' $workdir/etc/mkinitcpio.conf
 	task_wrapper sudo arch-chroot $workdir mkinitcpio -P
 else
 	echo "options root=\"LABEL=arkane_root\" $KERNEL_PARAM" | task_wrapper sudo tee -a $workdir/boot/loader/entries/arkane.conf
 	echo "options root=\"LABEL=arkane_root\" $KERNEL_PARAM" | task_wrapper sudo tee -a $workdir/boot/loader/entries/arkane-fallback.conf
-	task_wrapper sudo sed -i '/^#/!s/HOOKS=(.*)/HOOKS=(systemd sd-plymouth autodetect keyboard keymap consolefont modconf block filesystems fsck)/g' $workdir/etc/mkinitcpio.conf
+
+	# sed isn't wrapped to avoid bash from parsing the '' symbols when calling task_wrapper causing sed to not function
+	sudo sed -i '/^#/!s/HOOKS=(.*)/HOOKS=(systemd sd-plymouth autodetect keyboard keymap consolefont modconf block filesystems fsck)/g' $workdir/etc/mkinitcpio.conf
 	task_wrapper sudo arch-chroot $workdir mkinitcpio -P
 fi
 
