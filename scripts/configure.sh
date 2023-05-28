@@ -105,11 +105,11 @@ task_wrapper sudo arch-chroot $workdir ln -sf /usr/share/zoneinfo/$OSI_TIMEZONE 
 # Set custom keymap, very hacky but it gets the job done
 # TODO: Also set in TTY
 declare -r current_keymap=$(gsettings get org.gnome.desktop.input-sources sources)
-task_wrapper sudo arch-chroot $workdir gsettings set org.gnome.desktop.input-sources sources ${current_keymap}
+printf "[org.gnome.desktop.input-sources]\nsources = $current_keymap\n" | task_wrapper sudo tee $workdir/etc/dconf/db/local.d/keymap
 
 # Set auto login if requested
 if [[ $OSI_USER_AUTOLOGIN -eq 1 ]]; then
-	printf "[daemon]\nAutomaticLoginEnable=True\nAutomaticLogin=${OSI_USER_NAME}\n" | sudo tee $workdir/etc/gdm/custom.conf
+	printf "[daemon]\nAutomaticLoginEnable=True\nAutomaticLogin=${OSI_USER_NAME}\n" | task_wrapper sudo tee $workdir/etc/gdm/custom.conf
 fi
 
 # Ensure synced and umount
