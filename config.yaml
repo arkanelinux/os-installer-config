@@ -22,7 +22,7 @@ welcome_page:
     text    : 'Welcome to Arkane Linux!'
     usage   : yes
 
-minimum_disk_size: 10
+minimum_disk_size: 20
 offer_disk_encryption: yes
 
 skip_user: no
