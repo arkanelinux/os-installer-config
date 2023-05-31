@@ -54,6 +54,9 @@ task_wrapper sudo arch-chroot $workdir locale-gen
 # Copy Systemd-boot configuration
 task_wrapper sudo cp -rv $osidir/bits/systemd-boot/* $workdir/boot/loader/
 
+# Set custom sysctl tunables
+task_wrapper sudo install -m600 $osdir/bits/99-sysctl.conf $workdir/etc/sysctl.d/
+
 # Add dconf tweaks for GNOME desktop configuration
 task_wrapper sudo cp -rv $osidir/bits/dconf $workdir/etc/
 task_wrapper sudo arch-chroot $workdir dconf update
