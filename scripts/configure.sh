@@ -78,7 +78,7 @@ declare -r KERNEL_PARAM='lsm=landlock,lockdown,yama,integrity,apparmor,bpf quiet
 # The kernel parameters have to be configured differently based upon if the
 # user opted for disk encryption or not
 if [[ $OSI_USE_ENCRYPTION == 1 ]]; then
-	declare -r LUKS_UUID=$(sudo blkid -o value -s UUID ${OSI_DEVICE_PATH}3)
+	declare -r LUKS_UUID=$(sudo blkid -o value -s UUID ${OSI_DEVICE_PATH}2)
 	echo "options rd.luks.name=$LUKS_UUID=arkane_root root=/dev/mapper/arkane_root $KERNEL_PARAM" | task_wrapper sudo tee -a $workdir/boot/loader/entries/arkane.conf
 	echo "options rd.luks.name=$LUKS_UUID=arkane_root root=/dev/mapper/arkane_root $KERNEL_PARAM" | task_wrapper sudo tee -a $workdir/boot/loader/entries/arkane-fallback.conf
 
