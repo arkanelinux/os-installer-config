@@ -47,8 +47,8 @@ if [[ $OSI_USE_ENCRYPTION -eq 1 ]]; then
 
 		# If target is a drive
 		task_wrapper sudo mkfs.fat -F32 ${partition_path}1
-		task_wrapper sudo cryptsetup -q luksFormat ${partition_path}2
-		task_wrapper sudo cryptsetup open ${partition_path}2 $rootlabel -
+		echo $OSI_ENCRYPTION_PIN | task_wrapper sudo cryptsetup -q luksFormat ${partition_path}2
+		echo $OSI_ENCRYPTION_PIN | task_wrapper sudo cryptsetup open ${partition_path}2 $rootlabel -
 		task_wrapper sudo mkfs.btrfs -f -L $rootlabel /dev/mapper/$rootlabel
 
 		task_wrapper sudo mount -o compress=zstd /dev/mapper/$rootlabel $workdir
