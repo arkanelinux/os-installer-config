@@ -1,12 +1,32 @@
 #!/usr/bin/env bash
 
-# load collection of checks and functions
-source /etc/os-installer/lib.sh
+set -o pipefail
 
-if [[ ! $? -eq 0 ]]; then
-	printf 'Failed to load /etc/os-installer/lib.sh\n'
+## Generic checks
+#
+# Ensure user is in sudo group
+for group in $(groups); do
+
+	if [[ $group == 'wheel' || $group == 'sudo' ]]; then
+		declare -ri sudo_ok=1
+	fi
+
+done
+
+# If user is not in sudo group notify and exit with error
+if [[ ! -n $sudo_ok ]]; then
+	printf 'The current user is not a member of either the sudo or wheel group, this os-installer configuration requires sudo permissions\n'
 	exit 1
 fi
+
+# Function used to quit and notify user or error
+quit_on_err () {
+	if [[ -v $1 ]]; then
+		printf '$1\n'
+	fi
+
+	exit 1
+}
 
 # sanity check that all variables were set
 if [ -z ${OSI_LOCALE+x} ] || \
@@ -21,15 +41,10 @@ then
 fi
 
 # Check if something is already mounted to $workdir
-mountpoint -q $workdir
-
-if [[ $? -eq 0 ]]; then
-	printf "$workdir is already a mountpoint, unmount this directory and try again\n"
-	exit 1
-fi
+mountpoint -q $workdir && quit_on_err "$workdir is already a mountpoint, unmount this directory and try again"
 
 # Write partition table to the disk
-task_wrapper sudo sfdisk $OSI_DEVICE_PATH < $osidir/bits/part.sfdisk
+sudo sfdisk $OSI_DEVICE_PATH < $osidir/bits/part.sfdisk || quit_on_err 'Failed to write partition table to disk'
 
 # NVMe drives follow a slightly different naming scheme to other block devices
 # this will change `/dev/nvme0n1` to `/dev/nvme0n1p` for easier parsing later
@@ -46,17 +61,16 @@ if [[ $OSI_USE_ENCRYPTION -eq 1 ]]; then
 	if [[ $OSI_DEVICE_IS_PARTITION -eq 0 ]]; then
 
 		# If target is a drive
-		task_wrapper sudo mkfs.fat -F32 ${partition_path}1
-		echo $OSI_ENCRYPTION_PIN | task_wrapper sudo cryptsetup -q luksFormat ${partition_path}2
-		echo $OSI_ENCRYPTION_PIN | task_wrapper sudo cryptsetup open ${partition_path}2 $rootlabel -
-		task_wrapper sudo mkfs.btrfs -f -L $rootlabel /dev/mapper/$rootlabel
+		sudo mkfs.fat -F32 ${partition_path}1 || quit_on_err "Failed to create FAT filesystem on ${partition_path}1"
+		echo $OSI_ENCRYPTION_PIN | sudo cryptsetup -q luksFormat ${partition_path}2 || quit_on_err "Failed to create LUKS partition on ${partition_path}2"
+		echo $OSI_ENCRYPTION_PIN | sudo cryptsetup open ${partition_path}2 $rootlabel - || quit_on_err 'Failed to unlock LUKS partition'
+		sudo mkfs.btrfs -f -L $rootlabel /dev/mapper/$rootlabel || quit_on_err 'Failed to create Btrfs partition on LUKS'
 
-		task_wrapper sudo mount -o compress=zstd /dev/mapper/$rootlabel $workdir
-		task_wrapper sudo mount --mkdir ${partition_path}1 $workdir/boot
-		task_wrapper sudo btrfs subvolume create $workdir/home
+		sudo mount -o compress=zstd /dev/mapper/$rootlabel $workdir || quit_on_err "Failed to mount LUKS/Btrfs root partition to $workdir"
+		sudo mount --mkdir ${partition_path}1 $workdir/boot || quit_on_err 'Failed to mount boot'
+		sudo btrfs subvolume create $workdir/home || quit_on_err 'Failed to create home subvolume'
 
 	else
-
 		# If target is a partition
 		printf 'PARTITION TARGET NOT YET IMPLEMENTED BECAUSE OF EFI DETECTION BUG\n'
 		exit 1
@@ -68,16 +82,15 @@ else
 	if [[ $OSI_DEVICE_IS_PARTITION -eq 0 ]]; then
 
 		# If target is a drive
-		task_wrapper sudo mkfs.fat -F32 ${partition_path}1
-		task_wrapper sudo mkfs.btrfs -f -L $rootlabel ${partition_path}2
+		sudo mkfs.fat -F32 ${partition_path}1 || quit_on_err "Failed to create FAT filesystem on ${partition_path}1"
+		sudo mkfs.btrfs -f -L $rootlabel ${partition_path}2 || quit_on_err "Failed to create root on ${partition_path}2"
 
-		task_wrapper sudo mount -o compress=zstd ${partition_path}2 $workdir
-		task_wrapper sudo mount --mkdir ${partition_path}1 $workdir/boot
-		task_wrapper sudo btrfs subvolume create $workdir/home
+		sudo mount -o compress=zstd ${partition_path}2 $workdir || quit_on_err "Failed to mount root to $workdir"
+		sudo mount --mkdir ${partition_path}1 $workdir/boot || quit_on_err 'Failed to mount boot'
+		sudo btrfs subvolume create $workdir/home || quit_on_err 'Failed to create home subvoume'
 
 	else
-
-		# If target is a partition=
+		# If target is a partition
 		printf 'PARTITION TARGET NOT YET IMPLEMENTED BECAUSE OF EFI DETECTION BUG\n'
 		exit 1
 	fi
@@ -86,36 +99,36 @@ fi
 
 # Ensure partitions are mounted, quit and error if not
 for mountpoint in $workdir $workdir/boot; do
-	task_wrapper mountpoint -q $mountpoint
+	mountpoint -q $mountpoint || quit_on_err "No volume mounted to $mountpoint"
 done
 
 # Install the base system packages to root
-task_wrapper readarray base_packages < "$osidir/bits/package_lists/base.list"
-task_wrapper sudo pacstrap $workdir ${base_packages[*]}
+readarray base_packages < $osidir/bits/package_lists/base.list || quit_on_err 'Failed to read base.list'
+sudo pacstrap $workdir ${base_packages[*]} || quit_on_err 'Failed to install base packages'
 
 # Copy the ISO's pacman.conf file to the new installation
-task_wrapper sudo cp -v /etc/pacman.conf $workdir/etc/pacman.conf
+sudo cp -v /etc/pacman.conf $workdir/etc/pacman.conf || quit_on_err 'Failed to copy local pacman.conf to new root'
 
 # For some reason Arch does not populate the keyring upon installing
 # arkane-keyring, thus we have to populate it manually
-task_wrapper sudo arch-chroot $workdir pacman-key --populate arkane
+sudo arch-chroot $workdir pacman-key --populate arkane || quit_on_err 'Failed to populate pacman keyring with Arkane keys'
 
 # If localrepo exists, mount it
 if [[ -d /var/localrepo ]]; then
-	task_wrapper sudo mount -v -m --bind /var/localrepo $workdir/var/localrepo
+	sudo mount -v -m --bind /var/localrepo $workdir/var/localrepo || quit_on_err 'Failed to mount localrepo' 
 fi
 
 # Install the remaining system packages
-task_wrapper sudo arch-chroot $workdir pacman -S --noconfirm - < $osidir/bits/package_lists/gnome.list
+sudo arch-chroot $workdir pacman -S --noconfirm - < $osidir/bits/package_lists/gnome.list || quit_on_err 'Failed to arch-chroot and install gnome packages'
 
 # If localrepo exists, unmount it and remove dir
 if [[ -d $workdir/var/localrepo ]]; then
-	task_wrapper sudo umount -v $workdir/var/localrepo
-	rm -rf $workdir/var/localrepo
+	sudo umount -v $workdir/var/localrepo || quit_on_err 'Failed to unmount localrepo'
+	rm -rf $workdir/var/localrepo || quit_on_err 'Failed to remove localrepo mount point'
 fi
 
 # Install the systemd-boot bootloader
-task_wrapper sudo arch-chroot $workdir bootctl install
+sudo arch-chroot $workdir bootctl install || quit_on_err 'Failed to install systemd-boot'
 
 # Collect information about the system memory, this is used to determine an apropriate swapfile size
 declare -ri memtotal=$(grep MemTotal /proc/meminfo | awk '{print $2}')
@@ -124,24 +137,24 @@ declare -ri memtotal=$(grep MemTotal /proc/meminfo | awk '{print $2}')
 if [[ $memtotal -lt 4500000 ]]; then
 
 	# If RAM is less than 4.5GB create a 2GB swapfile
-	task_wrapper sudo arch-chroot $workdir btrfs filesystem mkswapfile --size 2G /var/swapfile
-
+	sudo arch-chroot $workdir btrfs filesystem mkswapfile --size 2G /var/swapfile || quit_on_err 'Failed to create swapfile'
+	
 elif [[ $memtotal -lt 8500000 ]]; then
 
 	# If RAM is less than 8.5GB, create a 4GB swapfile
-	task_wrapper sudo arch-chroot $workdir btrfs filesystem mkswapfile --size 4G /var/swapfile
+	sudo arch-chroot $workdir btrfs filesystem mkswapfile --size 4G /var/swapfile || quit_on_err 'Failed to create swapfile'
 
 else
 
 	# Else create a 6GB swapfile
-	task_wrapper sudo arch-chroot $workdir btrfs filesystem mkswapfile --size 6G /var/swapfile
+	sudo arch-chroot $workdir btrfs filesystem mkswapfile --size 6G /var/swapfile || quit_on_err 'Failed to create swapfile'
 
 fi
 
 # Enable the swapfile
-task_wrapper sudo swapon $workdir/var/swapfile
+sudo swapon $workdir/var/swapfile || quit_on_err 'Failed to activate swap'
 
 # Generate the fstab file
-task_wrapper sudo genfstab -U $workdir | task_wrapper sudo tee $workdir/etc/fstab
+sudo genfstab -U $workdir || quit_on_err 'Failed to genfstab' | sudo tee $workdir/etc/fstab || quit_on_err 'Failed to write fstab'
 
 exit 0
