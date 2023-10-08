@@ -119,7 +119,7 @@ sudo arch-chroot $workdir pacman-key --populate arkane || quit_on_err 'Failed to
 
 # If localrepo exists, mount it
 if [[ -d /var/localrepo ]]; then
-	sudo mount -v -m --bind /var/localrepo $workdir/var/localrepo || quit_on_err 'Failed to mount localrepo' 
+	sudo mount -v -m --bind /var/localrepo $workdir/var/localrepo || quit_on_err 'Failed to mount localrepo'
 fi
 
 # Install the remaining system packages
@@ -128,6 +128,8 @@ sudo arch-chroot $workdir pacman -S --noconfirm - < $osidir/bits/package_lists/g
 # If localrepo exists, unmount it and remove dir
 if [[ -d $workdir/var/localrepo ]]; then
 	sudo umount -v $workdir/var/localrepo || quit_on_err 'Failed to unmount localrepo'
+	# Lets wait a few seconds to ensure it is unmounted
+	sleep 3
 	rm -rf $workdir/var/localrepo || quit_on_err 'Failed to remove localrepo mount point'
 fi
 
@@ -142,7 +144,7 @@ if [[ $memtotal -lt 4500000 ]]; then
 
 	# If RAM is less than 4.5GB create a 2GB swapfile
 	sudo arch-chroot $workdir btrfs filesystem mkswapfile --size 2G /var/swapfile || quit_on_err 'Failed to create swapfile'
-	
+
 elif [[ $memtotal -lt 8500000 ]]; then
 
 	# If RAM is less than 8.5GB, create a 4GB swapfile
