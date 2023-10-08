@@ -128,9 +128,7 @@ sudo arch-chroot $workdir pacman -S --noconfirm - < $osidir/bits/package_lists/g
 # If localrepo exists, unmount it and remove dir
 if [[ -d $workdir/var/localrepo ]]; then
 	sudo umount -v $workdir/var/localrepo || quit_on_err 'Failed to unmount localrepo'
-	# Lets wait a few seconds to ensure it is unmounted
-	sleep 3
-	rm -rf $workdir/var/localrepo || quit_on_err 'Failed to remove localrepo mount point'
+	sudo rm -rf $workdir/var/localrepo || quit_on_err 'Failed to remove localrepo mount point'
 fi
 
 # Install the systemd-boot bootloader
