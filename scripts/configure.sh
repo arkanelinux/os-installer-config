@@ -2,6 +2,9 @@
 
 set -o pipefail
 
+declare -r workdir='/mnt'
+declare -r osidir='/etc/os-installer'
+
 ## Generic checks
 #
 # Ensure user is in sudo group

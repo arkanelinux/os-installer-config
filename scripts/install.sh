@@ -2,6 +2,10 @@
 
 set -o pipefail
 
+declare -r workdir='/mnt'
+declare -r osidir='/etc/os-installer'
+declare -r rootlabel='arkane_root'
+
 ## Generic checks
 #
 # Ensure user is in sudo group
