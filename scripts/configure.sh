@@ -102,7 +102,7 @@ declare firstname=($OSI_USER_NAME)
 firstname=${firstname[0]}
 
 # Add user, setup groups and set password
-sudo arch-chroot $workdir useradd -m  -c $OSI_USER_NAME ${firstname,,} || quit_on_err 'Failed to add user'
+sudo arch-chroot $workdir useradd -m  -c "$OSI_USER_NAME" "${firstname,,}" || quit_on_err 'Failed to add user'
 echo $OSI_USER_NAME:$OSI_USER_PASSWORD | sudo arch-chroot $workdir chpasswd || quit_on_err 'Failed to set user password'
 sudo arch-chroot $workdir usermod -a -G wheel $OSI_USER_NAME || quit_on_err 'Failed to make user sudoer'
 
