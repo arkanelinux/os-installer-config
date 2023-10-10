@@ -103,11 +103,11 @@ firstname=${firstname[0]}
 
 # Add user, setup groups and set password
 sudo arch-chroot $workdir useradd -m  -c "$OSI_USER_NAME" "${firstname,,}" || quit_on_err 'Failed to add user'
-echo $OSI_USER_NAME:$OSI_USER_PASSWORD | sudo arch-chroot $workdir chpasswd || quit_on_err 'Failed to set user password'
-sudo arch-chroot $workdir usermod -a -G wheel $OSI_USER_NAME || quit_on_err 'Failed to make user sudoer'
+echo "${firstname,,}:$OSI_USER_PASSWORD" | sudo arch-chroot $workdir chpasswd || quit_on_err 'Failed to set user password'
+sudo arch-chroot $workdir usermod -a -G wheel "${firstname,,}" || quit_on_err 'Failed to make user sudoer'
 
 # Set root password
-echo root:$OSI_USER_PASSWORD | sudo arch-chroot $workdir chpasswd || quit_on_err 'Failed to set root password'
+echo "root:$OSI_USER_PASSWORD" | sudo arch-chroot $workdir chpasswd || quit_on_err 'Failed to set root password'
 
 # Set timezome
 sudo arch-chroot $workdir ln -sf /usr/share/zoneinfo/$OSI_TIMEZONE /etc/localtime || quit_on_err 'Failed to set timezone'
@@ -119,7 +119,7 @@ printf "[org.gnome.desktop.input-sources]\nsources = $current_keymap\n" | sudo t
 
 # Set auto login if requested
 if [[ $OSI_USER_AUTOLOGIN -eq 1 ]]; then
-	printf "[daemon]\nAutomaticLoginEnable=True\nAutomaticLogin=${OSI_USER_NAME}\n" | sudo tee $workdir/etc/gdm/custom.conf || quit_on_err 'Failed to setup automatic login for user'
+	printf "[daemon]\nAutomaticLoginEnable=True\nAutomaticLogin=${firstname,,}\n" | sudo tee $workdir/etc/gdm/custom.conf || quit_on_err 'Failed to setup automatic login for user'
 fi
 
 # Disable localrepo on new install
