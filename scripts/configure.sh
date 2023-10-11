@@ -123,7 +123,7 @@ if [[ $OSI_USER_AUTOLOGIN -eq 1 ]]; then
 fi
 
 # Disable localrepo on new install
-grep -v 'localrepo' $workdir/etc/pacman.conf | sudo tee $workdir/etc/pacman.conf.new || quit_on_err 'Failed to writee '
+grep -v 'localrepo' $workdir/etc/pacman.conf | sudo tee $workdir/etc/pacman.conf.new || quit_on_err 'Failed to remove localrepo from pacman.conf'
 sudo mv $workdir/etc/pacman.conf.new $workdir/etc/pacman.conf || quit_on_err 'Failed to write new pacman.conf'
 
 # Ensure synced and umount
