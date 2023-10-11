@@ -159,6 +159,6 @@ fi
 sudo swapon $workdir/var/swapfile || quit_on_err 'Failed to activate swap'
 
 # Generate the fstab file
-sudo genfstab -U $workdir || quit_on_err 'Failed to genfstab' | sudo tee $workdir/etc/fstab || quit_on_err 'Failed to write fstab'
+sudo genfstab -U $workdir | sudo tee $workdir/etc/fstab || quit_on_err 'Failed to write fstab'
 
 exit 0
