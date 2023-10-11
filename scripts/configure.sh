@@ -31,13 +31,8 @@ quit_on_err () {
 	exit 1
 }
 
-# TODO: Drop this and instead use overlay?
-# Enable systemd services
-readarray services < $osidir/bits/systemd.services quit_on_err 'Failed to read systemd.services file'
-
-for service in ${services[@]}; do
-	sudo arch-chroot $workdir systemctl enable $service || quit_on_err 'Failed to enable system services'
-done
+# Copy overlay to new root
+sudo cp -rv $osidir/bits/overlay/* $workdir/
 
 # FIXME: Uncomment instead of append
 # Set chosen locale and en_US.UTF-8 for it is required by some programs
@@ -51,29 +46,6 @@ echo "LANG=\"$OSI_LOCALE\"" | sudo tee $workdir/etc/locale.conf || quit_on_err '
 
 # Generate locales
 sudo arch-chroot $workdir locale-gen || quit_on_err 'Failed to locale-gen'
-
-# TODO: Also drop this in favor of overlay?
-# Copy Systemd-boot configuration
-sudo cp -rv $osidir/bits/systemd-boot/* $workdir/boot/loader/ || quit_on_err 'Failed to copy systemd-boot configuration'
-
-# TODO: Also drop this in favor of overlay?
-# Set custom sysctl tunables
-sudo install -m600 $osidir/bits/99-sysctl.conf $workdir/etc/sysctl.d/ || quit_on_err 'Failed to set sysctl turnables'
-
-# Add dconf tweaks for GNOME desktop configuration
-sudo cp -rv $osidir/bits/dconf $workdir/etc/ || quit_on_err 'Failed to add dconf tweaks'
-sudo arch-chroot $workdir dconf update || quit_on_err 'Failed to update dconf'
-
-# TODO: Also drop this in favor of overlay?
-# Add custom useradd config
-sudo install -m600 $osidir/bits/useradd $workdir/etc/default/useradd || quit_on_err 'Failed to add useradd config'
-
-# TODO: Also drop this in favor of overlay?
-# Enable wheel in sudoers.d
-echo '%wheel ALL=(ALL:ALL) ALL' | sudo tee $workdir/etc/sudoers.d/wheel || quit_on_err 'Failed to add wheel to sudoers'
-
-# Set hostname
-echo 'arkane' | sudo tee /mnt/etc/hostname || quit_on_err 'Failed to configure hostname'
 
 # Set kernel parameters in Systemd-boot based on if disk encryption is used or not
 #

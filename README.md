@@ -28,14 +28,8 @@ An overview of the non-default os-installer components.
 - Generate fstab
 
 ### configure.sh
-- Start systemd services defined in `bits/systemd.services`
-- Decrease systemd DefaultTimeoutStopSec to 15s
-- Generate user selected locale and `en_US.UTF-8`, user locale is default
-- Copy systemd-boot configs from `bits/systemd-boot/`
-- Add dconf tweaks from `bits/dconf`
-- Create custom useradd to make Zsh default on new users
-- Configure sudoers
-- Set hostname
+- Copy `overlay` to new root
+- Generate user selected locale and `en_US.UTF-8`, user locale is set as default
 - Set kernel params based upon if LUKS is used or not
 - Create user
 - Set root pasword

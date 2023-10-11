@@ -107,7 +107,7 @@ for mountpoint in $workdir $workdir/boot; do
 done
 
 # Install the base system packages to root
-readarray base_packages < $osidir/bits/package_lists/base.list || quit_on_err 'Failed to read base.list'
+readarray base_packages < $osidir/bits/base.list || quit_on_err 'Failed to read base.list'
 sudo pacstrap $workdir ${base_packages[*]} || quit_on_err 'Failed to install base packages'
 
 # Copy the ISO's pacman.conf file to the new installation
@@ -123,7 +123,7 @@ if [[ -d /var/localrepo ]]; then
 fi
 
 # Install the remaining system packages
-sudo arch-chroot $workdir pacman -S --noconfirm - < $osidir/bits/package_lists/gnome.list || quit_on_err 'Failed to arch-chroot and install gnome packages'
+sudo arch-chroot $workdir pacman -S --noconfirm - < $osidir/bits/gnome.list || quit_on_err 'Failed to arch-chroot and install gnome packages'
 
 # If localrepo exists, unmount it and remove dir
 if [[ -d $workdir/var/localrepo ]]; then
