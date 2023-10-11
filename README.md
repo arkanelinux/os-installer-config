@@ -1,13 +1,6 @@
 # os-installer-config
 Configuration files for [os-installer](https://gitlab.gnome.org/p3732/os-installer) on Arch Linux and Arch-based systems.
 
-## Overview
-An overview of the non-default os-installer components.
-| File/Directory | Utility |
-| --- | --- |
-| `lib.sh` | Contains shared functions and checks, is sourced by all script files in `scripts/` |
-| `bits` | Contains files utilized by the installation scripts, these files are either copied or read by the installation scripts |
-
 ## Scripts configuration overview
 ### prepare.sh
 - Ensure `pacman-init.service` finishes running before starting install
