@@ -32,7 +32,7 @@ quit_on_err () {
 }
 
 # Copy overlay to new root
-sudo cp -rv $osidir/bits/overlay/* $workdir/
+sudo cp -rv $osidir/overlay/* $workdir/
 
 # FIXME: Uncomment instead of append
 # Set chosen locale and en_US.UTF-8 for it is required by some programs
