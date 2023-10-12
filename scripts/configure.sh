@@ -87,6 +87,7 @@ sudo arch-chroot $workdir ln -sf /usr/share/zoneinfo/$OSI_TIMEZONE /etc/localtim
 # Set custom keymap, very hacky but it gets the job done
 # TODO: Also set in TTY
 declare -r current_keymap=$(gsettings get org.gnome.desktop.input-sources sources)
+sudo mkdir -p $workdir/etc/dconf/db/local.d
 printf "[org.gnome.desktop.input-sources]\nsources = $current_keymap\n" | sudo tee $workdir/etc/dconf/db/local.d/keymap || quit_on_err 'Failed to set dconf keymap'
 
 # Set auto login if requested
