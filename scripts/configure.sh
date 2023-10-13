@@ -32,7 +32,10 @@ quit_on_err () {
 }
 
 # Copy overlay to new root
-sudo cp -rv $osidir/overlay/* $workdir/
+# For some reason this script dislikes catchalls, thus we are using a loop instead
+for f in $(ls $osidir/overlay); do
+	sudo cp -rv $osidir/overlay/$f $workdir/$f
+done
 
 # FIXME: Uncomment instead of append
 # Set chosen locale and en_US.UTF-8 for it is required by some programs
