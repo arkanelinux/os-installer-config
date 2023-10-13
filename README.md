@@ -1,7 +1,7 @@
 # os-installer-config
 Configuration files for [os-installer](https://gitlab.gnome.org/p3732/os-installer) on Arch Linux and Arch-based systems.
 
-> **Note** Installing to a partition is not functional on os-installer 0.3, the EFI detection bug should be fixed on master and the future 0.4
+> **Note** Installing to a partition is not functional on os-installer 0.3, the EFI detection bug should be fixed on master and in the future 0.4 release
 
 ## Scripts configuration overview
 ### prepare.sh
