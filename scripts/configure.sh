@@ -34,6 +34,26 @@ quit_on_err () {
 	exit 1
 }
 
+# sanity check that all variables were set
+if [ -z ${OSI_LOCALE+x} ] || \
+   [ -z ${OSI_KEYBOARD_LAYOUT+x} ] || \
+   [ -z ${OSI_DEVICE_PATH+x} ] || \
+   [ -z ${OSI_DEVICE_IS_PARTITION+x} ] || \
+   [ -z ${OSI_DEVICE_EFI_PARTITION+x} ] || \
+   [ -z ${OSI_USE_ENCRYPTION+x} ] || \
+   [ -z ${OSI_ENCRYPTION_PIN+x} ] || \
+   [ -z ${OSI_USER_NAME+x} ] || \
+   [ -z ${OSI_USER_AUTOLOGIN+x} ] || \
+   [ -z ${OSI_USER_PASSWORD+x} ] || \
+   [ -z ${OSI_FORMATS+x} ] || \
+   [ -z ${OSI_TIMEZONE+x} ] || \
+   [ -z ${OSI_ADDITIONAL_SOFTWARE+x} ] || \
+   [ -z ${OSI_ADDITIONAL_FEATURES+x} ]
+then
+    echo "Installer script called without all environment variables set!"
+    exit 1
+fi
+
 # Copy overlay to new root
 # For some reason this script dislikes catchalls, thus we are using a loop instead
 for f in $(ls $osidir/overlay); do
