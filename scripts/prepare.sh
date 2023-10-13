@@ -25,6 +25,9 @@ quit_on_err () {
 		printf '$1\n'
 	fi
 
+	# Ensure the terminal has time to print before exiting
+	sleep 2
+
 	exit 1
 }
 
