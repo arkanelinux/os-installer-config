@@ -79,13 +79,13 @@ if [[ $OSI_USE_ENCRYPTION -eq 1 ]]; then
 		sudo btrfs subvolume create $workdir/home || quit_on_err 'Failed to create home subvolume'
 	else
 		# If target is a partition
-		sudo mkfs.fat -F32 $OSI_EFI_PARTITION || quit_on_err "Failed to create FAT filesystem on $OSI_EFI_PARTITION"
+		sudo mkfs.fat -F32 $OSI_DEVICE_EFI_PARTITION || quit_on_err "Failed to create FAT filesystem on $OSI_DEVICE_EFI_PARTITION"
 		echo $OSI_ENCRYPTION_PIN | sudo cryptsetup -q luksFormat $OSI_DEVICE_PATH || quit_on_err "Failed to create LUKS partition on $OSI_DEVICE_PATH"
 		echo $OSI_ENCRYPTION_PIN | sudo cryptsetup open $OSI_DEVICE_PATH $rootlabel - || quit_on_err 'Failed to unlock LUKS partition'
 		sudo mkfs.btrfs -f -L $rootlabel /dev/mapper/$rootlabel || quit_on_err 'Failed to create Btrfs partition on LUKS'
 
 		sudo mount -o compress=zstd /dev/mapper/$rootlabel $workdir || quit_on_err "Failed to mount LUKS/Btrfs root partition to $workdir"
-		sudo mount --mkdir $OSI_EFI_PARTITION $workdir/boot || quit_on_err 'Failed to mount boot'
+		sudo mount --mkdir $OSI_DEVICE_EFI_PARTITION $workdir/boot || quit_on_err 'Failed to mount boot'
 		sudo btrfs subvolume create $workdir/home || quit_on_err 'Failed to create home subvolume'
 	fi
 
@@ -100,10 +100,10 @@ else
 		sudo mount --mkdir ${partition_path}1 $workdir/boot || quit_on_err 'Failed to mount boot'
 	else
 		# If target is a partition
-		sudo mkfs.fat -F32 $OSI_EFI_PARTITION || quit_on_err "Failed to create FAT filesystem on $OSI_EFI_PARTITION"
+		sudo mkfs.fat -F32 $OSI_DEVICE_EFIT_PARTITION || quit_on_err "Failed to create FAT filesystem on $OSI_EFI_PARTITION"
 		sudo mkfs.btrfs -f -L $rootlabel $OSI_DEVICE_PATH || quit_on_err "Failed to create root on $OSI_DEVICE_PATH"
 		sudo mount -o compress=zstd $OSI_DEVICE_PATH $workdir || quit_on_err "Failed to mount root to $workdir"
-		sudo mount --mkdir $OSI_EFI_PARTITION $workdir/boot || quit_on_err 'Failed to mount boot'
+		sudo mount --mkdir $OSI_DEVICE_EFIT_PARTITION $workdir/boot || quit_on_err 'Failed to mount boot'
 	fi
 
 	sudo btrfs subvolume create $workdir/home || quit_on_err 'Failed to create home subvoume'
