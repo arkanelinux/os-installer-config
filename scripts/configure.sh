@@ -34,8 +34,11 @@ quit_on_err () {
 # Copy overlay to new root
 # For some reason this script dislikes catchalls, thus we are using a loop instead
 for f in $(ls $osidir/overlay); do
-	sudo cp -rv $osidir/overlay/$f $workdir/$f
+	sudo cp -rv $osidir/overlay/$f $workdir/
 done
+
+# Generate dconf database
+sudo arch-chroot $workdir dconf update || quit_on_err 'Failed to update dconf'
 
 # FIXME: Uncomment instead of append
 # Set chosen locale and en_US.UTF-8 for it is required by some programs
