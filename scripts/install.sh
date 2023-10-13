@@ -108,7 +108,20 @@ done
 
 # Install the base system packages to root
 readarray base_packages < $osidir/bits/base.list || quit_on_err 'Failed to read base.list'
-sudo pacstrap $workdir ${base_packages[*]} || quit_on_err 'Failed to install base packages'
+
+# Retry installing three times before quitting
+for n in {1..3}; do
+	sudo pacstrap $workdir ${base_packages[*]}
+	exit_code=$?
+
+	if [[ $exit_code == 0 ]]; then
+		break
+	else
+		if [[ $n == 3 ]]; then
+			quit_on_err 'Failed pacstrap after 3 retries'
+		fi
+	fi
+done
 
 # Copy the ISO's pacman.conf file to the new installation
 sudo cp -v /etc/pacman.conf $workdir/etc/pacman.conf || quit_on_err 'Failed to copy local pacman.conf to new root'
@@ -123,7 +136,19 @@ if [[ -d /var/localrepo ]]; then
 fi
 
 # Install the remaining system packages
-sudo arch-chroot $workdir pacman -S --noconfirm - < $osidir/bits/gnome.list || quit_on_err 'Failed to arch-chroot and install gnome packages'
+# Retry three times before exiting on err
+for n in {1..3}; do
+	sudo arch-chroot $workdir pacman -S --noconfirm - < $osidir/bits/gnome.list
+	exit_code=$?
+
+	if [[ $exit_code == 0 ]]; then
+		break
+	else
+		if [[ $n == 3 ]]; then
+			quit_on_err 'Failed chroot pacman after 3 retries'
+		fi
+	fi
+done
 
 # If localrepo exists, unmount it and remove dir
 if [[ -d $workdir/var/localrepo ]]; then
