@@ -10,7 +10,6 @@ bluez-plugins
 bluez-utils
 btrfs-progs
 celluloid
-cheese
 cups
 cups-pdf
 dosfstools
@@ -76,6 +75,7 @@ pv
 qemu-guest-agent
 simple-scan
 skel-arkane
+snapshot
 sof-firmware
 spice-vdagent
 sudo
