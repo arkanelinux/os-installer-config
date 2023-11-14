@@ -25,34 +25,27 @@ fi
 # Function used to quit and notify user or error
 quit_on_err () {
 	if [[ -v $1 ]]; then
-		printf '$1\n'
+		printf "$1\n"
 	fi
-
-	# Ensure the terminal has time to print before exiting
-	sleep 2
 
 	exit 1
 }
 
 # sanity check that all variables were set
-if [ -z ${OSI_LOCALE+x} ] || \
-   [ -z ${OSI_KEYBOARD_LAYOUT+x} ] || \
-   [ -z ${OSI_DEVICE_PATH+x} ] || \
-   [ -z ${OSI_DEVICE_IS_PARTITION+x} ] || \
-   [ -z ${OSI_DEVICE_EFI_PARTITION+x} ] || \
-   [ -z ${OSI_USE_ENCRYPTION+x} ] || \
-   [ -z ${OSI_ENCRYPTION_PIN+x} ] || \
-   [ -z ${OSI_USER_NAME+x} ] || \
-   [ -z ${OSI_USER_AUTOLOGIN+x} ] || \
-   [ -z ${OSI_USER_PASSWORD+x} ] || \
-   [ -z ${OSI_FORMATS+x} ] || \
-   [ -z ${OSI_TIMEZONE+x} ] || \
-   [ -z ${OSI_ADDITIONAL_SOFTWARE+x} ] || \
-   [ -z ${OSI_ADDITIONAL_FEATURES+x} ]
-then
-    echo "Installer script called without all environment variables set!"
-    exit 1
-fi
+[[ -z ${OSI_LOCALE+x} ]] || quit_on_err 'OSI_LOCALE not set'
+[[ -z ${OSI_KEYBOARD_LAYOUT+x} ]] || quit_on_err 'OSI_KEYBOARD_LAYOUT not set'
+[[ -z ${OSI_DEVICE_PATH+x} ]] || quit_on_err 'OSI_DEVICE_PATH not set'
+[[ -z ${OSI_DEVICE_IS_PARTITION+x} ]] || quit_on_err 'OSI_DEVICE_OS_PARTITION is not set'
+[[ -z ${OSI_DEVICE_EFI_PARTITION+x} ]] || quit_on_err 'OSI_DEVICE_EFI_PARTITION is not set'
+[[ -z ${OSI_USE_ENCRYPTION+x} ]] || quit_on_err 'OSI_USE_ENCRYPTION is not set'
+[[ -z ${OSI_ENCRYPTION_PIN+x} ]] || quit_on_err 'OSI_ENCRYPT_PIN is not set'
+[[ -z ${OSI_USER_NAME+x} ]] || quit_on_err 'OSI_USER_NAME is not set'
+[[ -z ${OSI_USER_AUTOLOGIN+x} ]] || quit_on_err 'OSI_USER_AUTOLOGIN is not set'
+[[ -z ${OSI_USER_PASSWORD+x} ]] || quit_on_err 'OSI_USER_PASSWORD is not set'
+[[ -z ${OSI_FORMATS+x} ]] || quit_on_err 'OSI_FORMATS is not set'
+[[ -z ${OSI_TIMEZONE+x} ]] || quit_on_err 'OSI_TIMEZONE is not set'
+[[ -z ${OSI_ADDITIONAL_SOFTWARE+x} ]] || quit_on_err 'OSI_ADDITIONAL_SOFTWARE is not set'
+[[ -z ${OSI_ADDITIONAL_FEATURES+x} ]] || quit_on_err 'OSI_ADDITIONAL_FEATURES is not set'
 
 # Copy overlay to new root
 # For some reason this script dislikes catchalls, thus we are using a loop instead

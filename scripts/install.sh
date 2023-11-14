@@ -26,26 +26,19 @@ fi
 # Function used to quit and notify user or error
 quit_on_err () {
 	if [[ -v $1 ]]; then
-		printf '$1\n'
+		printf "$1\n"
 	fi
-
-	# Ensure the terminal has time to print before exiting
-	sleep 2
 
 	exit 1
 }
 
 # sanity check that all variables were set
-if [ -z ${OSI_LOCALE+x} ] || \
-   [ -z ${OSI_DEVICE_PATH+x} ] || \
-   [ -z ${OSI_DEVICE_IS_PARTITION+x} ] || \
-   [ -z ${OSI_DEVICE_EFI_PARTITION+x} ] || \
-   [ -z ${OSI_USE_ENCRYPTION+x} ] || \
-   [ -z ${OSI_ENCRYPTION_PIN+x} ]
-then
-    printf 'install.sh called without all environment variables set!\n'
-    exit 1
-fi
+[[ -z ${OSI_LOCALE+x} ]] || quit_on_err 'OSI_LOCALE not set'
+[[ -z ${OSI_DEVICE_PATH+x} ]] || quit_on_err 'OSI_DEVICE_PATH not set'
+[[ -z ${OSI_DEVICE_IS_PARTITION+x} ]] || quit_on_err 'OSI_DEVICE_IS_PARTITION not set'
+[[ -z ${OSI_DEVICE_EFI_PARTITION+x} ]] || quit_on_err 'OSI_DEVICE_EFI_PARTITION not set'
+[[ -z ${OSI_USE_ENCRYPTION+x} ]] || quit_on_err 'OSI_USE_ENCRYPTION not set'
+[[ -z ${OSI_ENCRYPTION_PIN+x} ]] || quit_on_err 'OSI_ENCRYPTION_PIN not set'
 
 # Check if something is already mounted to $workdir
 mountpoint -q $workdir && quit_on_err "$workdir is already a mountpoint, unmount this directory and try again"
