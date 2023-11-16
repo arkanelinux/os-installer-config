@@ -24,7 +24,7 @@ fi
 
 # Function used to quit and notify user or error
 quit_on_err () {
-	if [[ -v $1 ]]; then
+	if [[ -n $1 ]]; then
 		printf "$1\n"
 	fi
 
