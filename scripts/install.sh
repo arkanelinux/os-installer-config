@@ -36,12 +36,12 @@ quit_on_err () {
 }
 
 # sanity check that all variables were set
-[[ -z ${OSI_LOCALE+x} ]] || quit_on_err 'OSI_LOCALE not set'
-[[ -z ${OSI_DEVICE_PATH+x} ]] || quit_on_err 'OSI_DEVICE_PATH not set'
-[[ -z ${OSI_DEVICE_IS_PARTITION+x} ]] || quit_on_err 'OSI_DEVICE_IS_PARTITION not set'
-[[ -z ${OSI_DEVICE_EFI_PARTITION+x} ]] || quit_on_err 'OSI_DEVICE_EFI_PARTITION not set'
-[[ -z ${OSI_USE_ENCRYPTION+x} ]] || quit_on_err 'OSI_USE_ENCRYPTION not set'
-[[ -z ${OSI_ENCRYPTION_PIN+x} ]] || quit_on_err 'OSI_ENCRYPTION_PIN not set'
+[[ -z ${OSI_LOCALE+x} ]] && quit_on_err 'OSI_LOCALE not set'
+[[ -z ${OSI_DEVICE_PATH+x} ]] && quit_on_err 'OSI_DEVICE_PATH not set'
+[[ -z ${OSI_DEVICE_IS_PARTITION+x} ]] && quit_on_err 'OSI_DEVICE_IS_PARTITION not set'
+[[ -z ${OSI_DEVICE_EFI_PARTITION+x} ]] && quit_on_err 'OSI_DEVICE_EFI_PARTITION not set'
+[[ -z ${OSI_USE_ENCRYPTION+x} ]] && quit_on_err 'OSI_USE_ENCRYPTION not set'
+[[ -z ${OSI_ENCRYPTION_PIN+x} ]] && quit_on_err 'OSI_ENCRYPTION_PIN not set'
 
 # Check if something is already mounted to $workdir
 mountpoint -q $workdir && quit_on_err "$workdir is already a mountpoint, unmount this directory and try again"
