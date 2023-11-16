@@ -28,6 +28,9 @@ quit_on_err () {
 		printf "$1\n"
 	fi
 
+	# Ensure console prints error
+	sleep 2
+
 	exit 1
 }
 
