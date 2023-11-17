@@ -36,7 +36,7 @@ quit_on_err () {
 
 # sanity check that all variables were set
 [[ -z ${OSI_LOCALE+x} ]] && quit_on_err 'OSI_LOCALE not set'
-[[ -z ${OSI_KEYBOARD_LAYOUT+x} ]] && quit_on_err 'OSI_KEYBOARD_LAYOUT not set'
+#[[ -z ${OSI_KEYBOARD_LAYOUT+x} ]] && quit_on_err 'OSI_KEYBOARD_LAYOUT not set' --- Disabled due to OSI bug
 [[ -z ${OSI_DEVICE_PATH+x} ]] && quit_on_err 'OSI_DEVICE_PATH not set'
 [[ -z ${OSI_DEVICE_IS_PARTITION+x} ]] && quit_on_err 'OSI_DEVICE_OS_PARTITION is not set'
 [[ -z ${OSI_DEVICE_EFI_PARTITION+x} ]] && quit_on_err 'OSI_DEVICE_EFI_PARTITION is not set'
