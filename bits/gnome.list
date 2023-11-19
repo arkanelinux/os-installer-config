@@ -57,6 +57,7 @@ mesa-tweaks-arkane
 mesa-vdpau
 mkinitcpio
 mkinitcpio-archiso
+mutter-dynamic-buffering
 nautilus
 neovim
 networkmanager
