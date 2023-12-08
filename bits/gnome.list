@@ -14,12 +14,14 @@ celluloid
 cups
 cups-pdf
 dosfstools
+efibootmgr
 evince
 f2fs-tools
 firefox
 firefox-tweaks-arkane
 flatpak
 gdm
+git
 gnome-backgrounds
 gnome-boxes
 gnome-calculator
@@ -53,7 +55,6 @@ libva-mesa-driver
 loupe
 man-db
 mesa
-mesa-tweaks-arkane
 mesa-vdpau
 mkinitcpio
 mkinitcpio-archiso
