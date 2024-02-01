@@ -75,7 +75,7 @@ sudo arch-chroot $workdir locale-gen || quit_on_err 'Failed to locale-gen'
 # Set kernel parameters in Systemd-boot based on if disk encryption is used or not
 #
 # This is the base string shared by all configurations
-declare -r KERNEL_PARAM='lsm=landlock,lockdown,yama,integrity,apparmor,bpf quiet splash loglevel=3 vt.global_cursor_default=0 systemd.show_status=auto rd.udev.log_level=3 rw'
+declare -r KERNEL_PARAM='lsm=landlock,lockdown,yama,integrity,apparmor,bpf quiet splash loglevel=3 systemd.show_status=auto rd.udev.log_level=3 rw'
 
 # The kernel parameters have to be configured differently based upon if the
 # user opted for disk encryption or not
