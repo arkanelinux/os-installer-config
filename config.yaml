@@ -19,10 +19,17 @@ suggested_languages:
 
 welcome_page:
     logo    : '/usr/share/pixmaps/arkanelinux-logo.png'
-    text    : 'Welcome to Arkane Linux!'
+    text    : 'Welcome to Arkane Linux!
+
+
+      This program will guide you through the installation process.
+
+
+      Althrough the live environment tries to imitate an actual install as best as possible it
+      still differs in many ways, Arkane Linux is best experienced on a full proper installation.'
     usage   : yes
 
-minimum_disk_size: 20
+minimum_disk_size: 32
 offer_disk_encryption: yes
 
 skip_user: no
