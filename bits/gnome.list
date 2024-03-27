@@ -59,7 +59,7 @@ mesa
 mesa-vdpau
 mkinitcpio
 mkinitcpio-archiso
-mutter-dynamic-buffering
+mutter
 nautilus
 neovim
 networkmanager
