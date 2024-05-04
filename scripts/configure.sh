@@ -84,13 +84,13 @@ if [[ $OSI_USE_ENCRYPTION == 1 ]]; then
 	echo "options rd.luks.name=$LUKS_UUID=arkane_root root=/dev/mapper/arkane_root $KERNEL_PARAM" | sudo tee -a $workdir/boot/loader/entries/arkane.conf || quit_on_err 'Failed to configure bootloader config'
 	echo "options rd.luks.name=$LUKS_UUID=arkane_root root=/dev/mapper/arkane_root $KERNEL_PARAM" | sudo tee -a $workdir/boot/loader/entries/arkane-fallback.conf || quit_on_err 'Failed to configure bootloader fallback config'
 
-	sudo sed -i '/^#/!s/HOOKS=(.*)/HOOKS=(systemd sd-plymouth autodetect keyboard keymap consolefont modconf block sd-encrypt filesystems fsck)/g' $workdir/etc/mkinitcpio.conf || quit_on_err 'Failed to set hooks'
+	sudo sed -i '/^#/!s/HOOKS=(.*)/HOOKS=(systemd plymouth autodetect keyboard keymap consolefont modconf block sd-encrypt filesystems fsck)/g' $workdir/etc/mkinitcpio.conf || quit_on_err 'Failed to set hooks'
 	sudo arch-chroot $workdir mkinitcpio -P || quit_on_err 'Failed to mkinitcpio'
 else
 	echo "options root=\"LABEL=arkane_root\" $KERNEL_PARAM" | sudo tee -a $workdir/boot/loader/entries/arkane.conf
 	echo "options root=\"LABEL=arkane_root\" $KERNEL_PARAM" | sudo tee -a $workdir/boot/loader/entries/arkane-fallback.conf
 
-	sudo sed -i '/^#/!s/HOOKS=(.*)/HOOKS=(systemd sd-plymouth autodetect keyboard keymap consolefont modconf block filesystems fsck)/g' $workdir/etc/mkinitcpio.conf || quit_on_err 'Failed to set hooks'
+	sudo sed -i '/^#/!s/HOOKS=(.*)/HOOKS=(systemd plymouth autodetect keyboard keymap consolefont modconf block filesystems fsck)/g' $workdir/etc/mkinitcpio.conf || quit_on_err 'Failed to set hooks'
 	sudo arch-chroot $workdir mkinitcpio -P || quit_on_err 'Failed to generate initramfs'
 fi
 
